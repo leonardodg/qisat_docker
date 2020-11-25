@@ -1,0 +1,44 @@
+version: '3.7'
+
+services:
+  qisat_db:
+    image: mysql:5.7
+    restart: always
+    container_name : qisat_db
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_bin
+      --innodb_file_format=barracuda
+      --innodb_file_per_table=On
+      --innodb_large_prefix=On
+    volumes:
+      - "qisat_banco:/var/lib/mysql:rw"
+      # - ./db:/var/imported/data
+
+    ports:
+      - "${DB_HOST_PORT}:${DB_CTNR_PORT}"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+
+  qisat_www:
+    build:  "./"
+    restart: always
+    container_name : qisat_www
+    volumes:
+      
+      - ../website:/var/www/html/website
+      - ../e-commerce:/var/www/html/e-commerce:rw
+      - ../moodle:/var/www/html/moodle
+      
+      - '${PATH_HOST_MOODLE_DATA}:/var/www/moodledata:rw'
+    ports:
+      - '${WWW_HOST_PORT}:${WWW_CTNR_PORT}'
+      - '${SSL_HOST_PORT}:${SSL_CTNR_PORT}'
+    links:
+      - qisat_db
+
+volumes:
+  qisat_banco:
