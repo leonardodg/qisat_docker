@@ -27,7 +27,6 @@ services:
     build:  "./"
     restart: always
     container_name : qisat_www
-    command: bash -c "cd /var/www/html/website/ && npm install && npm start"
     volumes:
       - ../website:/var/www/html/website
       - ../indicadores:/var/www/html/indicadores

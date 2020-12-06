@@ -5,7 +5,7 @@ ARG GID=root
 ARG USER
 
 COPY ./apache /etc/apache2/sites-available
-#COPY ./apache/php.ini /usr/local/etc/php/php.ini
+COPY ./apache/php.ini /usr/local/etc/php/php.ini
 COPY --chown=www-data:www-data ./ssl /var/imported/ssl
 
 # en_US config
@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/* 
 ENV LANG en_US.UTF-8
 
 # Install
-RUN apt-get update \
+RUN apt-get update && apt-get upgrade -y \
     && apt-get install -y libfreetype6-dev libjpeg62-turbo-dev \
         apt-utils pngquant libpng-dev curl libssl-dev nano curl gnupg ruby-full \
         libmcrypt-dev libicu-dev libxml2-dev git libxslt-dev libzip-dev zip unzip \
@@ -29,12 +29,14 @@ RUN a2enmod rewrite && a2enmod headers && a2enmod ssl \
 
 # Install Composer PHP
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
-RUN curl -sL https://deb.nodesource.com/setup_8.x  | bash -
+RUN curl -sL https://deb.nodesource.com/setup_10.x  | bash -
 RUN apt-get -y install nodejs
-RUN /usr/bin/npm install -g gulp && gem install compass
+RUN /usr/bin/npm install -g gulp 
+RUN gem update --system && gem install compass
 
-CMD ["apachectl", "-D", "FOREGROUND"]
-
-RUN chown -R ${UID}:${GID} /var/www/html && chmod -R 777 /var/www/html 
+RUN chown -R ${UID}:${GID} /var/www/html/ && chmod -R 777 /var/www/html/
 VOLUME /var/www/html
 VOLUME /var/www/moodledata
+
+CMD ["bash","-c","cd /var/www/html/website/ && /usr/bin/npm install && /usr/bin/npm start"] 
+CMD ["apachectl", "-D", "FOREGROUND"]
