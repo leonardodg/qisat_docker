@@ -15,17 +15,17 @@ ENV LANG en_US.UTF-8
 
 # Install
 RUN apt-get update && apt-get upgrade -y \
-    && apt-get install -y libfreetype6-dev libjpeg62-turbo-dev \
-        apt-utils pngquant libpng-dev curl libssl-dev nano curl gnupg ruby-full \
-        libmcrypt-dev libicu-dev libxml2-dev git libxslt-dev libzip-dev zip unzip \
+    && apt-get install -y zip unzip git nano curl gnupg ruby-full mysql-client pngquant \
+        libfreetype6-dev libjpeg62-turbo-dev libpng-dev libssl-dev g++ libmcrypt4 zlib1g-dev libmcrypt-dev libicu-dev libxml2-dev libxslt-dev libzip-dev \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    &&  /usr/local/bin/docker-php-ext-install zip bcmath gd xml xmlrpc dom session intl mysqli pdo_mysql mbstring soap opcache xsl pdo pdo_mysql
+    && docker-php-ext-configure pdo_mysql --with-pdo-mysql=mysqlnd \
+    &&  /usr/local/bin/docker-php-ext-install pcntl zip bcmath gd xml xmlrpc dom session intl mysqli pdo_mysql mbstring soap opcache xsl pdo pdo_mysql
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite && a2enmod headers && a2enmod ssl \
     && a2ensite website && a2ensite website-ssl && a2ensite ecommerce && a2ensite ecommerce-ssl \
     && a2ensite moodle && a2ensite moodle-ssl \
-     && a2ensite indicadores && a2ensite indicadores-ssl
+    && a2ensite indicadores && a2ensite indicadores-ssl
 
 # Install Composer PHP
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
@@ -38,5 +38,6 @@ RUN chown -R ${UID}:${GID} /var/www/html/ && chmod -R 777 /var/www/html/
 VOLUME /var/www/html
 VOLUME /var/www/moodledata
 
-CMD ["bash","-c","cd /var/www/html/website/ && /usr/bin/npm install && /usr/bin/npm start"] 
+CMD ["bash","-c","cd /var/www/html/website/ && /usr/bin/npm install && /usr/bin/npm start"]
+CMD ["bash","-c","cd /var/www/html/e-commerce/ && /usr/bin/composer install"]
 CMD ["apachectl", "-D", "FOREGROUND"]
