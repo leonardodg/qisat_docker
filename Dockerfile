@@ -22,22 +22,12 @@ RUN apt-get update && apt-get upgrade -y \
     &&  /usr/local/bin/docker-php-ext-install pcntl zip bcmath gd xml xmlrpc dom session intl mysqli pdo_mysql mbstring soap opcache xsl pdo pdo_mysql
 
 # Enable Apache mod_rewrite
-RUN a2enmod rewrite && a2enmod headers && a2enmod ssl \
-    && a2ensite website && a2ensite website-ssl && a2ensite ecommerce && a2ensite ecommerce-ssl \
-    && a2ensite moodle && a2ensite moodle-ssl \
-    && a2ensite indicadores && a2ensite indicadores-ssl
+RUN a2enmod rewrite && a2enmod headers && a2enmod ssl
 
 # Install Composer PHP
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
-RUN curl -sL https://deb.nodesource.com/setup_10.x  | bash -
-RUN apt-get -y install nodejs
-RUN /usr/bin/npm install -g gulp 
-RUN gem update --system && gem install compass
 
 RUN chown -R ${UID}:${GID} /var/www/html/ && chmod -R 777 /var/www/html/
 VOLUME /var/www/html
-VOLUME /var/www/moodledata
 
-CMD ["bash","-c","cd /var/www/html/website/ && /usr/bin/npm install && /usr/bin/npm start"]
-CMD ["bash","-c","cd /var/www/html/e-commerce/ && /usr/bin/composer install"]
 CMD ["apachectl", "-D", "FOREGROUND"]
