@@ -29,10 +29,9 @@ services:
     container_name : qisat_www
     volumes:
       - ../website:/var/www/html/website
-      - ../indicadores:/var/www/html/indicadores
       - ../ecommerce:/var/www/html/e-commerce:rw
       - ../moodle:/var/www/html/moodle
-      - '${PATH_HOST_MOODLE_DATA}:/var/www/moodledata:rw'
+      - ../moodledata:/var/www/moodledata:rw
     ports:
       - '${WWW_HOST_PORT}:${WWW_CTNR_PORT}'
       - '${SSL_HOST_PORT}:${SSL_CTNR_PORT}'
